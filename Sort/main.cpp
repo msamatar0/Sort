@@ -3,34 +3,36 @@
 int main(){
 	srand(time(nullptr));
 	int order[SIZE], rev[SIZE], random[SIZE];
-	auto comparator = [](auto a, auto b){ return a > b; };
-
-	//Initialize all three arrays
-	for(int i = 0; i < SIZE; ++i){
-		order[i] = i + 1;
-		rev[SIZE - (i + 1)] = i + 1;
-		random[i] = 1 + rand() % SIZE;
-	}
-
-	cout << "P1 - Heap Sort\n";
-	heapSort(order, SIZE, comparator);
-	heapSort(rev, SIZE, comparator);
-	heapSort(random, SIZE, comparator);
+	auto greater = [](auto a, auto b){ return a > b; };
+	auto less = [](auto a, auto b){ return a < b; };
+	init(order, rev, random, SIZE);
+	cout << "Arrays:\n";
 	print(order);
 	print(rev);
 	print(random);
 
-	//Initialize all three arrays, again
-	for(int i = 0; i < SIZE; ++i){
-		order[i] = i + 1;
-		rev[SIZE - (i + 1)] = i + 1;
-		random[i] = 1 + rand() % SIZE;
-	}
+	cout << "\nP1 - Quick Sort\n";
+	quickSort(order, 0, SIZE - 1, less, 0);
+	quickSort(order, 0, SIZE - 1, less, rand() % SIZE);
+	quickSort(order, 0, SIZE - 1, less, (SIZE - 1) / 2);
+	print(order);
+	cout << "\nP2 - Heap/Merge\n";
 
-	cout << "\nP2 - Merge Sort\n";
-	mergeSort(order, 0, SIZE, comparator);
-	mergeSort(rev, 0, SIZE, comparator);
-	mergeSort(random, 0, SIZE, comparator);
+
+	cout << "\nHeap Sort\n";
+	init(order, rev, random, SIZE);
+	heapSort(order, SIZE, greater);
+	heapSort(rev, SIZE, greater);
+	heapSort(random, SIZE, greater);
+	print(order);
+	print(rev);
+	print(random);
+
+	cout << "\nMerge Sort\n";
+	init(order, rev, random, SIZE);
+	mergeSort(order, 0, SIZE - 1, less);
+	mergeSort(rev, 0, SIZE - 1, less);
+	mergeSort(random, 0, SIZE - 1, less);
 	print(order);
 	print(rev);
 	print(random);
@@ -50,7 +52,7 @@ inline void heapSort(type *arr, size_t size, comparator comp){
 template<class type, class comparator>
 void mergeSort(type *arr, size_t l, size_t r, comparator comp){
 	if(l < r){
-		int mid = l + (r - 1) / 2;
+		int mid = (l + (r - 1)) / 2;
 		mergeSort(arr, l, mid, comp);
 		mergeSort(arr, mid + 1, r, comp);
 		merge(arr, l, mid, r, comp);
@@ -72,7 +74,7 @@ void merge(type *arr, size_t left, size_t mid, size_t right, comparator comp){
 
 	i = 0, j = 0, k = left;
 	while(i < lsize && j < rsize)
-		if(comp(rarr[j], larr[i]))
+		if(comp(larr[i], rarr[j]))
 			arr[k++] = larr[i++];
 		else
 			arr[k++] = rarr[j++];
@@ -86,6 +88,41 @@ void merge(type *arr, size_t left, size_t mid, size_t right, comparator comp){
 	delete[] rarr;
 }
 
+template<class type, class comparator>
+void quickSort(type *arr, size_t left, size_t right, comparator comp, size_t pivot){
+	if(left >= right)
+		return;
+	type x = arr[pivot];
+	int i = left, j = right;
+	while(left < j || right > i){
+		while(comp(arr[i], pivot))
+			i++;
+		while(comp(pivot, arr[j]))
+			j--;
+		if(i <= j){
+			type temp = arr[i];
+			arr[i] = arr[j];
+			arr[j] = temp;
+		}
+		else{
+			if(left < j)
+				quickSort(arr, left, j, comp, (left + j) / 2);
+			if(right > i)
+				quickSort(arr, i, right, comp, (i + right) / 2);
+		}
+	}
+}
+
+//Initialize all three arrays
+void init(int *order, int *rev, int *random, size_t size){
+	for(int i = 0; i < size; ++i){
+		order[i] = i + 1;
+		rev[size - (i + 1)] = i + 1;
+		random[i] = 1 + rand() % size;
+	}
+}
+
+//Print an array
 void print(int *arr){
 	for(int i = 0; i < 5; ++i)
 		cout << arr[i] << " ";
