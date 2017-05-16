@@ -103,7 +103,7 @@ template<class type, class comparator>
 void quickSort(type *arr, size_t left, size_t right, comparator comp){
 	if(left >= right)
 		return;
-	size_t pidx = (left + (right - 1)) / 2;
+	size_t pidx = (left + (right - left)) / 2;
 	//size_t pidx = rand() % right;
 	//size_t pidx = left;
 	type pivot = arr[pidx];
