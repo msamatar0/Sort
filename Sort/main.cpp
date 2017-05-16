@@ -3,24 +3,35 @@
 int main(){
 	srand(time(nullptr));
 	int order[SIZE], rev[SIZE], random[SIZE];
-	auto greater = [](auto a, auto b){ return a > b; };
+	//Comparator
 	auto less = [](auto a, auto b){ return a < b; };
-	init(order, rev, random, SIZE);
+	//Used in heapsort to correctly order priority queue
+	auto greater = [](auto a, auto b){ return a > b; };
+	
+	//Initialize arrays
+	auto init = [&](size_t size){
+		for(int i = 0; i < size; ++i){
+			order[i] = i + 1;
+			rev[size - (i + 1)] = i + 1;
+			random[i] = 1 + rand() % size;
+		}
+	};
+
+	init(SIZE);
 	cout << "Arrays:\n";
 	print(order);
 	print(rev);
 	print(random);
 
 	cout << "\nP1 - Quick Sort\n";
-	quickSort(order, 0, SIZE - 1, less, 0);
-	quickSort(order, 0, SIZE - 1, less, rand() % SIZE);
-	quickSort(order, 0, SIZE - 1, less, (SIZE - 1) / 2);
+	quickSort(order, 0, SIZE - 1, less);
+	quickSort(rev, 0, SIZE - 1, less);
+	quickSort(random, 0, SIZE - 1, less);
 	print(order);
 	cout << "\nP2 - Heap/Merge\n";
 
-
 	cout << "\nHeap Sort\n";
-	init(order, rev, random, SIZE);
+	init(SIZE);
 	heapSort(order, SIZE, greater);
 	heapSort(rev, SIZE, greater);
 	heapSort(random, SIZE, greater);
@@ -29,7 +40,7 @@ int main(){
 	print(random);
 
 	cout << "\nMerge Sort\n";
-	init(order, rev, random, SIZE);
+	init(SIZE);
 	mergeSort(order, 0, SIZE - 1, less);
 	mergeSort(rev, 0, SIZE - 1, less);
 	mergeSort(random, 0, SIZE - 1, less);
@@ -89,37 +100,39 @@ void merge(type *arr, size_t left, size_t mid, size_t right, comparator comp){
 }
 
 template<class type, class comparator>
-void quickSort(type *arr, size_t left, size_t right, comparator comp, size_t pivot){
+void quickSort(type *arr, size_t left, size_t right, comparator comp){
 	if(left >= right)
 		return;
-	type x = arr[pivot];
+	size_t pidx = (left + (right - 1)) / 2;
+	//size_t pidx = rand() % right;
+	//size_t pidx = left;
+	type pivot = arr[pidx];
 	int i = left, j = right;
-	while(left < j || right > i){
+	while(i <= j){
 		while(comp(arr[i], pivot))
 			i++;
 		while(comp(pivot, arr[j]))
 			j--;
 		if(i <= j){
 			type temp = arr[i];
-			arr[i] = arr[j];
-			arr[j] = temp;
-		}
-		else{
-			if(left < j)
-				quickSort(arr, left, j, comp, (left + j) / 2);
-			if(right > i)
-				quickSort(arr, i, right, comp, (i + right) / 2);
+			arr[i++] = arr[j];
+			arr[j--] = temp;
 		}
 	}
+	if(left < j)
+		quickSort(arr, left, j, comp);
+	if(i < right)
+		quickSort(arr, i, right, comp);
 }
 
-//Initialize all three arrays
-void init(int *order, int *rev, int *random, size_t size){
-	for(int i = 0; i < size; ++i){
-		order[i] = i + 1;
-		rev[size - (i + 1)] = i + 1;
-		random[i] = 1 + rand() % size;
-	}
+template<class type, class comparator>
+void bucketSort(type *arr, size_t size, comparator comp){
+	;
+}
+
+template<class type, class comparator>
+void radixSort(type *arr, size_t size, comparator comp){
+	;
 }
 
 //Print an array
